@@ -28,4 +28,5 @@ class BookSerializerTestCase(TestCase):
                 'author_name': 'Author2'
             }
         ]
+        print(data)
         self.assertEqual(expected_data, data)
