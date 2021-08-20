@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.db.models import Count, Case, When
+from django.db.models import Count, Case, When, Avg
 from django.test import TestCase
 
 from django.urls import reverse
@@ -18,16 +18,18 @@ class BookSerializerTestCase(TestCase):
                                      author_name='Author1')
         book_2 = Book.objects.create(name='Book2', price=55,
                                      author_name='Author2')
-        UserBookRelation.objects.create(user=user1, book=book_1, like=True)
-        UserBookRelation.objects.create(user=user2, book=book_1, like=True)
-        UserBookRelation.objects.create(user=user3, book=book_1, like=True)
+        UserBookRelation.objects.create(user=user1, book=book_1, like=True, rate=5)
+        UserBookRelation.objects.create(user=user2, book=book_1, like=True, rate=5)
+        UserBookRelation.objects.create(user=user3, book=book_1, like=True, rate=4)
 
-        UserBookRelation.objects.create(user=user1, book=book_2, like=True)
-        UserBookRelation.objects.create(user=user2, book=book_2, like=True)
+        UserBookRelation.objects.create(user=user1, book=book_2, like=True, rate=3)
+        UserBookRelation.objects.create(user=user2, book=book_2, like=True, rate=4)
         UserBookRelation.objects.create(user=user2, book=book_2, like=False)
 
         books = Book.objects.all().annotate(
-            annotated_likes=Count(Case(When(userbookrelation__like=True, then=1)))).order_by('id')
+            annotated_likes=Count(Case(When(userbookrelation__like=True, then=1))),
+            rating=Avg('userbookrelation__rate')
+        ).order_by('id')
 
         data = BookSerializer(books, many=True).data
         expected_data = [
@@ -37,7 +39,8 @@ class BookSerializerTestCase(TestCase):
                 'price': '25.00',
                 'author_name': 'Author1',
                 'likes_count': 3,
-                'annotated_likes': 3
+                'annotated_likes': 3,
+                'rating': '4.67'
             },
             {
                 'id': book_2.id,
@@ -45,7 +48,8 @@ class BookSerializerTestCase(TestCase):
                 'price': '55.00',
                 'author_name': 'Author2',
                 'likes_count': 2,
-                'annotated_likes': 2
+                'annotated_likes': 2,
+                'rating': '3.50'
             }
         ]
         print(data)
