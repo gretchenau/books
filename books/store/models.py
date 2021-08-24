@@ -6,7 +6,8 @@ class Book(models.Model):
     name = models.CharField(max_length=225)
     price = models.DecimalField(max_digits=7, decimal_places=2)
     author_name = models.CharField(max_length=225)
-    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='my_books')
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL,
+                              null=True, related_name='my_books')
     readers = models.ManyToManyField(User, through='UserBookRelation', related_name='books')
 
     def __str__(self):
