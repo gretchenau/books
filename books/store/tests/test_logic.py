@@ -32,4 +32,4 @@ class SetRatingTestCase(TestCase):
     def test_ok(self):
         set_rating(self.book_1)
         self.book_1.refresh_from_db()
-        self.assertEqual(self.book_1.rating, Decimal('4.67'))
+        self.assertEqual(str(self.book_1.rating), '4.67')

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -35,5 +37,14 @@ class UserBookRelation(models.Model):
 
     def save(self, *args, **kwargs):
         from store.logic import set_rating
+
+        creating = not self.pk
+
+        old_rating = self.rate
+
         super().save(*args, **kwargs)
+
+        new_rating = self.rate
+        if old_rating != new_rating or creating:
+            print('not working')
         set_rating(self.book)
